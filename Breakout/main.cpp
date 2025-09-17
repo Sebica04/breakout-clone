@@ -3,6 +3,7 @@
 #include "json.hpp"
 #include <fstream>
 #include "TileMap.hpp"
+#include "Ball.hpp"
 
 using json = nlohmann::json;
 
@@ -12,12 +13,17 @@ int main() {
 
 	sf::RenderWindow* myWindow = new sf::RenderWindow(sf::VideoMode({ width, height }), "Breakout");
 
+	myWindow->setFramerateLimit(144);
+
 	TileMap map;
 
 	if (!map.load("assets/images/tilemap.json", "assets/images/tileset.png")) {
 		std::cerr << "Failed to load the map!" << std::endl;
 		return -1;
 	}
+
+
+	Ball ball(960.0f / 2, 800.0f / 2);
 
 	while (myWindow->isOpen()) {
 
@@ -26,8 +32,11 @@ int main() {
 			if (event->is<sf::Event::Closed>())
 				myWindow->close();
 		}
+
+		ball.update();
 		myWindow->clear();
 		myWindow->draw(map);
+		myWindow->draw(ball);
 		myWindow->display();
 	}
 
