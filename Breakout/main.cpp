@@ -4,7 +4,7 @@
 #include <fstream>
 #include "TileMap.hpp"
 #include "Ball.hpp"
-
+#include "Paddle.hpp"
 using json = nlohmann::json;
 
 int main() {
@@ -25,6 +25,8 @@ int main() {
 
 	Ball ball(960.0f / 2, 800.0f / 2);
 
+	Paddle paddle(960.0f / 2, 800.0f - 70.0f);
+
 	while (myWindow->isOpen()) {
 
 		while (const std::optional event = myWindow->pollEvent()) {
@@ -34,9 +36,13 @@ int main() {
 		}
 
 		ball.update();
+		paddle.update();
+
+
 		myWindow->clear();
 		myWindow->draw(map);
 		myWindow->draw(ball);
+		myWindow->draw(paddle);
 		myWindow->display();
 	}
 
