@@ -6,7 +6,9 @@ public:
 	Paddle(float startX, float startY);
 
 	void update();
-
+	sf::Vector2f getPosition() const;
+	sf::Vector2f getSize() const;
+	sf::FloatRect getGlobalBounds() const;
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 

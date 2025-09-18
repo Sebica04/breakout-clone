@@ -35,7 +35,7 @@ int main() {
 				myWindow->close();
 		}
 
-		ball.update();
+		ball.update(paddle);
 		paddle.update();
 
 
