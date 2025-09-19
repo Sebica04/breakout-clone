@@ -1,18 +1,28 @@
 #include "Ball.hpp"
-
+#include "iostream"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~constructor~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 Ball::Ball(float startX, float startY) {
 	setPosition({ startX, startY });
 
+	if (!m_ballTexture.loadFromFile("assets/images/ball.png")) {
+		std::cerr << "Failed to load the ball texture" << std::endl;
+	}
+
 	m_shape.setRadius(12.0f);
-	m_shape.setFillColor(sf::Color::White);
+
+	m_shape.setTexture(&m_ballTexture);
 
 	m_shape.setOrigin(m_shape.getGeometricCenter());
 
+	m_shape.setTextureRect(sf::IntRect({0,0},{24, 24}));
+
+	m_isGlowing = false;
+
 	m_speed = 3.0f;
 	m_velocity = normalize({ -1.f, -1.f }) * m_speed;
+
 }
 
 
@@ -36,18 +46,30 @@ sf::Vector2f Ball::normalize(const sf::Vector2f& source) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
-void Ball::update(const Paddle& paddle) {
+void Ball::update(Paddle& paddle) {
 	move(m_velocity);
 	
-	if (getPosition().x < 16.0f)
-		m_velocity.x = - m_velocity.x;
+	if (getPosition().x < 16.0f) {
+		m_velocity.x = -m_velocity.x;
+		m_isGlowing = true;
+		m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
+		m_glowClock.restart();
+	}
 
-		else if (getPosition().x > 960.0f - 16.0f)
-			m_velocity.x = - m_velocity.x;
+	else if (getPosition().x > 960.0f - 16.0f) {
+		m_velocity.x = -m_velocity.x;
+		m_isGlowing = true;
+		m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
+		m_glowClock.restart();
+	}
 
 
-	if (getPosition().y < 16.0f)
+	if (getPosition().y < 16.0f) {
 		m_velocity.y = -m_velocity.y;
+		m_isGlowing = true;
+		m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
+		m_glowClock.restart();
+	}
 
 	else if (getPosition().y > 800.0f + 120.0f) {
 		m_velocity.y = -m_velocity.y;
@@ -72,7 +94,20 @@ void Ball::update(const Paddle& paddle) {
 		//normalize the vector so that we keed its direction but adjust the speed
 		m_velocity = normalize(bounceDirection) * m_speed;
 
+		m_isGlowing = true;
+		m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
+		m_glowClock.restart();
+
+		paddle.onBallHit();
+
 	}
+	if (m_isGlowing && m_glowClock.getElapsedTime().asMilliseconds() > 150)
+	{
+		m_isGlowing = false;
+
+		m_shape.setTextureRect(sf::IntRect({ 0, 0 }, { 24, 24 }));
+	}
+	this->rotate(sf::degrees(m_velocity.x * 2));
 }
 
 void Ball::draw(sf::RenderTarget& target, sf::RenderStates states) const {

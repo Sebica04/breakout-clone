@@ -7,7 +7,7 @@ class Ball : public sf::Drawable, public sf::Transformable {
 public:
 	Ball(float startX, float startY);
 
-	void update(const Paddle& paddle);
+	void update(Paddle& paddle);
 	sf::Vector2f getPosition() const;
 	sf::FloatRect getGlobalBounds() const;
 	sf::Vector2f normalize(const sf::Vector2f& source);
@@ -17,4 +17,7 @@ private:
 	sf::CircleShape m_shape;
 	sf::Vector2f m_velocity;
 	float m_speed;
+	sf::Texture m_ballTexture;
+	sf::Clock m_glowClock;
+	bool m_isGlowing;
 };

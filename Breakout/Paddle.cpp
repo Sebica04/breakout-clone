@@ -1,18 +1,28 @@
 #include "Paddle.hpp"
-
+#include <iostream>
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~constructor~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
-Paddle::Paddle(float startX, float startY) {
+Paddle::Paddle(float startX, float startY) : m_sprite(m_texture) { 
 	
 	setPosition({ startX, startY });
 
-	m_shape.setSize({120.0f, 16.0f});
-	m_shape.setFillColor(sf::Color::White);
-	m_shape.setOrigin(m_shape.getGeometricCenter());
+	if (!m_texture.loadFromFile("assets/images/paddle.png")) {
+		std::cerr << "Failed to load the paddle texture!" << std::endl;
+	}
 
+	m_sprite.setTexture(m_texture);
+	m_sprite.setOrigin({ 130.0f / 2.f, 50.0f / 2.f });
+
+	m_hitbox.setSize({ 120.0f, 16.0f });
+	m_hitbox.setFillColor(sf::Color::Transparent);
+	m_hitbox.setOrigin(m_hitbox.getGeometricCenter());
+
+	m_currentState = 0;
+	m_isHit = false;
+	updateSprite();
 	m_speed = 4.0f;
 
 }
@@ -21,9 +31,9 @@ Paddle::Paddle(float startX, float startY) {
 
 sf::Vector2f Paddle::getPosition() const { return sf::Transformable::getPosition(); }
 
-sf::Vector2f Paddle::getSize() const { return m_shape.getSize(); }
+sf::Vector2f Paddle::getSize() const { return m_hitbox.getSize(); }
 
-sf::FloatRect Paddle::getGlobalBounds() const { return getTransform().transformRect(m_shape.getGlobalBounds()); }
+sf::FloatRect Paddle::getGlobalBounds() const { return getTransform().transformRect(m_hitbox.getGlobalBounds()); }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
@@ -31,23 +41,48 @@ sf::FloatRect Paddle::getGlobalBounds() const { return getTransform().transformR
 
 void Paddle::update() {
 
+	bool isMovingLeft = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
+	bool isMovingRight = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-		move({-m_speed, 0.f});
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-		move({ m_speed, 0.f });
+	int baseState = 0;
+
+	if (isMovingLeft && !isMovingRight) {
+		baseState = 1;
 	}
 
-	if (getPosition().x < 70) {
-		setPosition({ 71, getPosition().y });
+	else if (isMovingRight && !isMovingLeft) {
+		baseState = 2;
 	}
-	else if (getPosition().x > 960 - 70) {
-		setPosition({ 960 - 69, getPosition().y });
+
+	if (m_isHit && m_hitTimer.getElapsedTime().asMilliseconds() > 150) {
+		m_isHit = false;
 	}
+
+	m_currentState = baseState + (m_isHit ? 3 : 0);
+
+	if (baseState == 1 && getPosition().x > 81) move({ -m_speed, 0.f });
+	if (baseState == 2 && getPosition().x < 879) move({ m_speed, 0.f });
+
+	updateSprite();
+
+}
+
+void Paddle::onBallHit() {
+	m_isHit = true;
+	m_hitTimer.restart();
+}
+
+void Paddle::updateSprite() {
+	int stateIndex = m_currentState % 3;
+	int stateRow = m_currentState / 3;
+
+	int rectLeft = stateIndex * 130;
+	int rectTop = stateRow * 50;
+
+	m_sprite.setTextureRect(sf::IntRect({ rectLeft, rectTop }, { 130, 50 }));
 }
 
 void Paddle::draw(sf::RenderTarget& target, sf::RenderStates states)const {
 	states.transform *= getTransform();
-	target.draw(m_shape, states);
+	target.draw(m_sprite, states);
 }
