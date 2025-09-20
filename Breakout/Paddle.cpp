@@ -58,6 +58,7 @@ void Paddle::update() {
 		m_isHit = false;
 	}
 
+	//telling if the paddle is moving and if it was hit
 	m_currentState = baseState + (m_isHit ? 3 : 0);
 
 	if (baseState == 1 && getPosition().x > 81) move({ -m_speed, 0.f });
@@ -73,6 +74,8 @@ void Paddle::onBallHit() {
 }
 
 void Paddle::updateSprite() {
+
+	//getting the right rectangle texture for the paddle
 	int stateIndex = m_currentState % 3;
 	int stateRow = m_currentState / 3;
 

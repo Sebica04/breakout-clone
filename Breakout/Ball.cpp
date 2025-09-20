@@ -24,6 +24,7 @@ Ball::Ball(float startX, float startY) {
 	m_velocity = normalize({ -1.f, -1.f }) * m_speed;
 
 }
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~helper functions~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -31,6 +32,12 @@ Ball::Ball(float startX, float startY) {
 sf::Vector2f Ball::getPosition() const { return sf::Transformable::getPosition(); }
 
 sf::FloatRect Ball::getGlobalBounds() const { return getTransform().transformRect(m_shape.getGlobalBounds()); }
+
+void Ball::glow(){
+	m_isGlowing = true;
+	m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
+	m_glowClock.restart();
+}
 
 sf::Vector2f Ball::normalize(const sf::Vector2f& source) {
 
@@ -46,29 +53,25 @@ sf::Vector2f Ball::normalize(const sf::Vector2f& source) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
-void Ball::update(Paddle& paddle) {
+
+
+void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
 	move(m_velocity);
 	
 	if (getPosition().x < 16.0f) {
 		m_velocity.x = -m_velocity.x;
-		m_isGlowing = true;
-		m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
-		m_glowClock.restart();
-	}
+		this->glow();
+	}	
 
 	else if (getPosition().x > 960.0f - 16.0f) {
-		m_velocity.x = -m_velocity.x;
-		m_isGlowing = true;
-		m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
-		m_glowClock.restart();
-	}
+			m_velocity.x = -m_velocity.x;
+			this->glow();
+		}
 
 
 	if (getPosition().y < 16.0f) {
 		m_velocity.y = -m_velocity.y;
-		m_isGlowing = true;
-		m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
-		m_glowClock.restart();
+		this->glow();
 	}
 
 	else if (getPosition().y > 800.0f + 120.0f) {
@@ -94,20 +97,37 @@ void Ball::update(Paddle& paddle) {
 		//normalize the vector so that we keed its direction but adjust the speed
 		m_velocity = normalize(bounceDirection) * m_speed;
 
-		m_isGlowing = true;
-		m_shape.setTextureRect(sf::IntRect({ 24, 0 }, { 24, 24 }));
-		m_glowClock.restart();
+		this->glow();
 
 		paddle.onBallHit();
 
 	}
+
+	for (auto& brick : bricks) {
+		if (brick.isDestroyed()) {
+			continue;
+		}
+
+		sf::FloatRect ballBounds = this->getGlobalBounds();
+		sf::FloatRect brickBounds = brick.getGlobalBounds();
+
+		if (ballBounds.findIntersection(brickBounds)) {
+			brick.destroy();
+			m_velocity.y = -m_velocity.y;
+			this->glow();
+			break;
+		}
+	}
+
+	this->rotate(sf::degrees(m_velocity.x * 2));
+
 	if (m_isGlowing && m_glowClock.getElapsedTime().asMilliseconds() > 150)
 	{
 		m_isGlowing = false;
 
 		m_shape.setTextureRect(sf::IntRect({ 0, 0 }, { 24, 24 }));
 	}
-	this->rotate(sf::degrees(m_velocity.x * 2));
+	
 }
 
 void Ball::draw(sf::RenderTarget& target, sf::RenderStates states) const {

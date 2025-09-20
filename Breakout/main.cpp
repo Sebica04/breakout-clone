@@ -8,12 +8,25 @@
 using json = nlohmann::json;
 
 int main() {
+
+
+
+	//~~~~~~~~~~~~~~~~~~~~Creating the window~~~~~~~~~~~~~~~~~~//
+
 	unsigned int width = 960;
 	unsigned int height = 800;
 
 	sf::RenderWindow* myWindow = new sf::RenderWindow(sf::VideoMode({ width, height }), "Breakout");
 
 	myWindow->setFramerateLimit(144);
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+
+
+
+	//~~~~~~~Initializing the game componenst~~~~~~~~~~~~~~~~~//
+				//~~~~Tilemap for backgorund, ball, paddle, bricks~~~~~~~~//
 
 	TileMap map;
 
@@ -27,6 +40,24 @@ int main() {
 
 	Paddle paddle(960.0f / 2, 800.0f - 70.0f);
 
+	std::vector<Brick> bricks;
+
+	const int bricksPerRow = 12;
+	const int numRows = 4;
+	for (int i = 0; i < bricksPerRow; ++i) {
+		for (int j = 0; j < numRows; ++j) {
+			float x = i * (60.f + 10.f) + 100.f;
+			float y = j * (20.f + 10.f) + 50.f;
+			bricks.emplace_back(x, y); 
+		}
+	}
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+
+
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Game loop~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
 	while (myWindow->isOpen()) {
 
 		while (const std::optional event = myWindow->pollEvent()) {
@@ -35,16 +66,33 @@ int main() {
 				myWindow->close();
 		}
 
-		ball.update(paddle);
+		ball.update(paddle, bricks);
 		paddle.update();
 
-
+		int i = 0;
+		while (i < bricks.size())
+		{
+			if (bricks[i].isDestroyed())
+			{
+				bricks.erase(bricks.begin() + i);
+			}
+			else
+			{
+				i++;
+			}
+		}
 		myWindow->clear();
 		myWindow->draw(map);
 		myWindow->draw(ball);
 		myWindow->draw(paddle);
+
+		for (const auto& brick : bricks) {
+			myWindow->draw(brick);
+		}
 		myWindow->display();
 	}
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
 
 	delete myWindow;
 	return 0;
