@@ -1,13 +1,28 @@
 #include "Brick.hpp"
+#include <iostream>
 
-Brick::Brick(float startX, float startY) {
+sf::Texture Brick::s_texture;
+bool Brick::s_textureLoaded = false;
+
+Brick::Brick(float startX, float startY, const sf::Color& color) {
+	
+	if (!s_textureLoaded) {
+		if (s_texture.loadFromFile("assets/images/brick.png")) {
+			s_textureLoaded = true;
+		}
+		else {
+			std::cerr << "Failed to load brick texture!" << std::endl;
+		}
+	}
 	setPosition({ startX, startY });
 
-	m_shape.setSize({60.f, 20.f});
-	m_shape.setFillColor(sf::Color::Red);
-	m_shape.setOutlineColor(sf::Color::White);
-	m_shape.setOutlineThickness(2.0f);
+	m_color = color;
+	m_shape.setSize({90.f, 30.f});
+	m_shape.setTexture(&s_texture);
+	m_shape.setFillColor(m_color);
 	m_shape.setOrigin(m_shape.getGeometricCenter());
+
+	
 
 	m_isDestroyed = false;
 }

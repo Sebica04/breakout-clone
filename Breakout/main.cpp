@@ -41,14 +41,15 @@ int main() {
 	Paddle paddle(960.0f / 2, 800.0f - 70.0f);
 
 	std::vector<Brick> bricks;
+	std::vector<sf::Color> colors = { sf::Color::Red, sf::Color::Green, sf::Color::Blue, sf::Color::Yellow };
 
-	const int bricksPerRow = 12;
+	const int bricksPerRow = 9;
 	const int numRows = 4;
 	for (int i = 0; i < bricksPerRow; ++i) {
 		for (int j = 0; j < numRows; ++j) {
-			float x = i * (60.f + 10.f) + 100.f;
-			float y = j * (20.f + 10.f) + 50.f;
-			bricks.emplace_back(x, y); 
+			float x = i * (90.f + 10.f) + 80.f;
+			float y = j * (30.f + 10.f) + 50.f;
+			bricks.emplace_back(x, y, colors[j % colors.size()]);
 		}
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -69,6 +70,7 @@ int main() {
 		ball.update(paddle, bricks);
 		paddle.update();
 
+		//~~~~~~~~~~erasing the destroyed briks~~~~~~~~~~~~//
 		int i = 0;
 		while (i < bricks.size())
 		{
@@ -81,6 +83,7 @@ int main() {
 				i++;
 			}
 		}
+
 		myWindow->clear();
 		myWindow->draw(map);
 		myWindow->draw(ball);

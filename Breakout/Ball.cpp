@@ -53,11 +53,14 @@ sf::Vector2f Ball::normalize(const sf::Vector2f& source) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
-
+//~~~~~~~~~~~~~~~~~~~everything about the ballmovement~~~~~~~~~//
 
 void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
+	
 	move(m_velocity);
 	
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~screenbounds~~~~~~~~~~~~~//
+
 	if (getPosition().x < 16.0f) {
 		m_velocity.x = -m_velocity.x;
 		this->glow();
@@ -66,8 +69,7 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
 	else if (getPosition().x > 960.0f - 16.0f) {
 			m_velocity.x = -m_velocity.x;
 			this->glow();
-		}
-
+	}
 
 	if (getPosition().y < 16.0f) {
 		m_velocity.y = -m_velocity.y;
@@ -78,6 +80,8 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
 		m_velocity.y = -m_velocity.y;
 		setPosition({ 960.0f / 2, 800.0f / 2 });
 	}
+
+	//~~~~~~~~~~~~~~~~intersection with the paddle~~~~~~~~~~~~//
 
 	sf::FloatRect ballBounds = getGlobalBounds();
 	sf::FloatRect paddleBounds = paddle.getGlobalBounds();
@@ -93,7 +97,7 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
 		//create a vector that has the correct angle but has weird speed
 		sf::Vector2f bounceDirection(normalizedIntersect, -1.0f);		//since the x is between (-1, 1) we can t have a greater angle than 45 degrees
 																		//can increase the angle by amplyfing the x with a bounce factor or reduce the y
-
+																		
 		//normalize the vector so that we keed its direction but adjust the speed
 		m_velocity = normalize(bounceDirection) * m_speed;
 
@@ -103,6 +107,8 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
 
 	}
 
+	//~~~~~~~~~~~intersection with the bricks~~~~~~~~~~~~//
+
 	for (auto& brick : bricks) {
 		if (brick.isDestroyed()) {
 			continue;
@@ -111,13 +117,22 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
 		sf::FloatRect ballBounds = this->getGlobalBounds();
 		sf::FloatRect brickBounds = brick.getGlobalBounds();
 
-		if (ballBounds.findIntersection(brickBounds)) {
+		if (auto intersectionRect = ballBounds.findIntersection(brickBounds)) {
 			brick.destroy();
-			m_velocity.y = -m_velocity.y;
 			this->glow();
+
+			if (intersectionRect->size.x < intersectionRect->size.y) {
+				m_velocity.x = -m_velocity.x;
+			}
+			else
+			{
+				m_velocity.y = -m_velocity.y;
+			}
 			break;
 		}
 	}
+
+	//~~~~~~~~ball roatations and glow stop ~~~~~~~~~~~~~~~//
 
 	this->rotate(sf::degrees(m_velocity.x * 2));
 
