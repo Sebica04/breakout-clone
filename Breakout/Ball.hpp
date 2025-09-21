@@ -8,7 +8,7 @@ class Ball : public sf::Drawable, public sf::Transformable {
 public:
 	Ball(float startX, float startY);
 
-	void update(Paddle& paddle, std::vector<Brick>& bricks);
+	void update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& lives);
 
 	void glow();
 

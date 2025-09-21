@@ -55,7 +55,7 @@ sf::Vector2f Ball::normalize(const sf::Vector2f& source) {
 
 //~~~~~~~~~~~~~~~~~~~everything about the ballmovement~~~~~~~~~//
 
-void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
+void Ball::update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& lives) {
 	
 	move(m_velocity);
 	
@@ -77,6 +77,7 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
 	}
 
 	else if (getPosition().y > 800.0f + 120.0f) {
+		lives -= 1;
 		m_velocity.y = -m_velocity.y;
 		setPosition({ 960.0f / 2, 800.0f / 2 });
 	}
@@ -118,6 +119,7 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks) {
 		sf::FloatRect brickBounds = brick.getGlobalBounds();
 
 		if (auto intersectionRect = ballBounds.findIntersection(brickBounds)) {
+			score += 100;
 			brick.destroy();
 			this->glow();
 

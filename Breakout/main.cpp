@@ -54,10 +54,33 @@ int main() {
 	play.setString("Play");
 	play.setCharacterSize(36);
 	play.setFillColor(sf::Color::Yellow);
-	play.setPosition({ 960.0f / 2 - 30, 800.0f / 2 - 36 });
+	play.setPosition({ 960.0f / 2 - 32, 800.0f / 2 - 50 });
 	play.setStyle(sf::Text::Bold);
+
+	sf::Text exit(arial);
+	exit.setString("Exit");
+	exit.setCharacterSize(36);
+	exit.setFillColor(sf::Color::Yellow);
+	exit.setPosition({ 960.0f / 2 - 30, 800.0f / 2 });
+	exit.setStyle(sf::Text::Bold);
+
+	sf::Text scoreText(arial);
+	scoreText.setCharacterSize(28);
+	scoreText.setFillColor(sf::Color::Yellow);
+	scoreText.setPosition({ 30, 10});
+	scoreText.setStyle(sf::Text::Bold);
+
+	sf::Text livesText(arial);
+	livesText.setCharacterSize(28);
+	livesText.setFillColor(sf::Color::Yellow);
+	livesText.setPosition({ 830, 10 });
+	livesText.setStyle(sf::Text::Bold);
+
 	//~~~~~~~Initializing the game objects~~~~~~~~~~~~~~~~~//
 			//~~~~Tilemap for backgorund, ball, paddle, bricks~~~~~~~~//
+	int score = 0;
+	int lives = 3;
+
 	Ball ball(960.0f / 2, 800.0f / 2);
 
 	Paddle paddle(960.0f / 2, 800.0f - 70.0f);
@@ -70,7 +93,7 @@ int main() {
 	for (int i = 0; i < bricksPerRow; ++i) {
 		for (int j = 0; j < numRows; ++j) {
 			float x = i * (90.f + 10.f) + 80.f;
-			float y = j * (30.f + 10.f) + 50.f;
+			float y = j * (30.f + 10.f) + 120.f;
 			bricks.emplace_back(x, y, colors[j % colors.size()]);
 		}
 	}
@@ -98,11 +121,15 @@ int main() {
 					if (play.getGlobalBounds().contains(mousePos)) {
 						currentState = GameState::GameRunning;
 					}
+					else if (exit.getGlobalBounds().contains(mousePos)) {
+						myWindow->close();
+					}
 				}
 			}
 			myWindow->clear(sf::Color::Black);
 			myWindow->draw(map);
 			myWindow->draw(play);
+			myWindow->draw(exit);
 			myWindow->display();
 			break;
 		}
@@ -113,7 +140,7 @@ int main() {
 					myWindow->close();
 			}
 
-			ball.update(paddle, bricks);
+			ball.update(paddle, bricks, score, lives);
 			paddle.update();
 
 			//~~~~~~~~~~erasing the destroyed briks~~~~~~~~~~~~//
@@ -129,12 +156,17 @@ int main() {
 					i++;
 				}
 			}
-
+			scoreText.setString("Score: " + std::to_string(score));
+			livesText.setString("Lives: " + std::to_string(lives));
 			myWindow->clear();
 			myWindow->draw(map);
 			myWindow->draw(ball);
 			myWindow->draw(paddle);
+			myWindow->draw(scoreText);
+			myWindow->draw(livesText);
 
+			if (lives == 0)
+				currentState = GameState::MainMenu;
 			for (const auto& brick : bricks) {
 				myWindow->draw(brick);
 			}
