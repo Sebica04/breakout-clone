@@ -7,6 +7,14 @@
 #include "Paddle.hpp"
 using json = nlohmann::json;
 
+
+
+enum class GameState {
+	MainMenu,
+	GameRunning,
+	GameOver
+};
+
 int main() {
 
 
@@ -25,8 +33,15 @@ int main() {
 
 
 
-	//~~~~~~~Initializing the game componenst~~~~~~~~~~~~~~~~~//
-				//~~~~Tilemap for backgorund, ball, paddle, bricks~~~~~~~~//
+
+
+	GameState currentState = GameState::MainMenu;
+
+	sf::Font arial;
+	if (!arial.openFromFile("../dependencies/arial.ttf")) { 
+		std::cerr << "Failed to load font!" << std::endl;
+		return -1;
+	}
 
 	TileMap map;
 
@@ -35,7 +50,14 @@ int main() {
 		return -1;
 	}
 
-
+	sf::Text play(arial);
+	play.setString("Play");
+	play.setCharacterSize(36);
+	play.setFillColor(sf::Color::Yellow);
+	play.setPosition({ 960.0f / 2 - 30, 800.0f / 2 - 36 });
+	play.setStyle(sf::Text::Bold);
+	//~~~~~~~Initializing the game objects~~~~~~~~~~~~~~~~~//
+			//~~~~Tilemap for backgorund, ball, paddle, bricks~~~~~~~~//
 	Ball ball(960.0f / 2, 800.0f / 2);
 
 	Paddle paddle(960.0f / 2, 800.0f - 70.0f);
@@ -61,38 +83,72 @@ int main() {
 
 	while (myWindow->isOpen()) {
 
-		while (const std::optional event = myWindow->pollEvent()) {
+		switch (currentState) {
 
-			if (event->is<sf::Event::Closed>())
-				myWindow->close();
+		case GameState::MainMenu: {
+			while (const std::optional event = myWindow->pollEvent()) {
+
+				if (event->is<sf::Event::Closed>())
+					myWindow->close();
+				
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+					sf::Vector2i mouseTPos = sf::Mouse::getPosition(*myWindow);
+					sf::Vector2f mousePos = myWindow->mapPixelToCoords(mouseTPos);
+
+					if (play.getGlobalBounds().contains(mousePos)) {
+						currentState = GameState::GameRunning;
+					}
+				}
+			}
+			myWindow->clear(sf::Color::Black);
+			myWindow->draw(map);
+			myWindow->draw(play);
+			myWindow->display();
+			break;
 		}
+		case GameState::GameRunning:{
+			while (const std::optional event = myWindow->pollEvent()) {
 
-		ball.update(paddle, bricks);
-		paddle.update();
+				if (event->is<sf::Event::Closed>())
+					myWindow->close();
+			}
 
-		//~~~~~~~~~~erasing the destroyed briks~~~~~~~~~~~~//
-		int i = 0;
-		while (i < bricks.size())
+			ball.update(paddle, bricks);
+			paddle.update();
+
+			//~~~~~~~~~~erasing the destroyed briks~~~~~~~~~~~~//
+			int i = 0;
+			while (i < bricks.size())
+			{
+				if (bricks[i].isDestroyed())
+				{
+					bricks.erase(bricks.begin() + i);
+				}
+				else
+				{
+					i++;
+				}
+			}
+
+			myWindow->clear();
+			myWindow->draw(map);
+			myWindow->draw(ball);
+			myWindow->draw(paddle);
+
+			for (const auto& brick : bricks) {
+				myWindow->draw(brick);
+			}
+			myWindow->display();
+			break;
+		}
+		case GameState::GameOver:
 		{
-			if (bricks[i].isDestroyed())
-			{
-				bricks.erase(bricks.begin() + i);
-			}
-			else
-			{
-				i++;
-			}
+			// We'll implement this later
+			break;
+		}
 		}
 
-		myWindow->clear();
-		myWindow->draw(map);
-		myWindow->draw(ball);
-		myWindow->draw(paddle);
-
-		for (const auto& brick : bricks) {
-			myWindow->draw(brick);
-		}
-		myWindow->display();
+		
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
