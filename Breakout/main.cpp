@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "json.hpp"
 #include <fstream>
+#include <sstream>  
 #include "TileMap.hpp"
 #include "Ball.hpp"
 #include "Paddle.hpp"
@@ -14,6 +15,62 @@ enum class GameState {
 	GameRunning,
 	GameOver
 };
+
+void loadLevel(const std::string& filename, std::vector<Brick>& bricks) {
+
+	bricks.clear();
+	std::ifstream file(filename);
+	if (!file.is_open()) {
+		std::cerr << "Error: Failed to open level file: " << filename << std::endl;
+		return;
+	}
+	std::string line;
+	float currentY = 80.f;
+
+	while (std::getline(file, line))
+	{
+		std::stringstream ss(line);
+		std::string token;
+		float currentX = 80.f; // The X position for the first brick in a row
+
+		// Read each token (e.g., "1r", "0", "3w") from the line
+		while (ss >> token)
+		{
+			// If the token is "0", it's an empty space, so we do nothing but advance the position.
+			if (token != "0")
+			{
+				// The first character is the type, the second is the color
+				char typeChar = token[0];
+				char colorChar = token[1];
+
+				// Convert the characters into the actual Type and Color
+				Brick::Type brickType = Brick::Type::Normal;
+				sf::Color brickColor = sf::Color::White;
+
+				switch (typeChar) {
+				case '1': brickType = Brick::Type::Normal; break;
+				case '2': brickType = Brick::Type::Sturdy; break;
+				case '3': brickType = Brick::Type::Steel; break;
+				}
+
+				switch (colorChar) {
+				case 'r': brickColor = sf::Color::Red; break;
+				case 'g': brickColor = sf::Color::Green; break;
+				case 'b': brickColor = sf::Color::Blue; break;
+				case 'y': brickColor = sf::Color::Yellow; break;
+				case 'w': brickColor = sf::Color::White; break;
+				}
+
+				// Finally, create the brick with the parsed data
+				bricks.emplace_back(currentX, currentY, brickType, brickColor);
+			}
+			// Move to the next position for the next brick in the row
+			currentX += 90.f + 10.f; // Brick width + padding
+		}
+		// Move to the next row position
+		currentY += 30.f + 5.f; // Brick height + padding
+	}
+}
 
 int main() {
 
@@ -86,17 +143,17 @@ int main() {
 	Paddle paddle(960.0f / 2, 800.0f - 70.0f);
 
 	std::vector<Brick> bricks;
-	std::vector<sf::Color> colors = { sf::Color::Red, sf::Color::Green, sf::Color::Blue, sf::Color::Yellow };
+	
 
-	const int bricksPerRow = 9;
+	/*const int bricksPerRow = 9;
 	const int numRows = 4;
 	for (int i = 0; i < bricksPerRow; ++i) {
 		for (int j = 0; j < numRows; ++j) {
 			float x = i * (90.f + 10.f) + 80.f;
 			float y = j * (30.f + 10.f) + 120.f;
-			bricks.emplace_back(x, y, colors[j % colors.size()]);
+			bricks.emplace_back(x, y ,colors[j % colors.size()]);
 		}
-	}
+	}*/
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -119,6 +176,7 @@ int main() {
 					sf::Vector2f mousePos = myWindow->mapPixelToCoords(mouseTPos);
 
 					if (play.getGlobalBounds().contains(mousePos)) {
+						loadLevel("assets/levels/level4.txt", bricks);
 						currentState = GameState::GameRunning;
 					}
 					else if (exit.getGlobalBounds().contains(mousePos)) {
@@ -165,11 +223,11 @@ int main() {
 			myWindow->draw(scoreText);
 			myWindow->draw(livesText);
 
-			if (lives == 0)
-				currentState = GameState::MainMenu;
 			for (const auto& brick : bricks) {
 				myWindow->draw(brick);
 			}
+			if (lives == 0)
+				currentState = GameState::MainMenu;
 			myWindow->display();
 			break;
 		}

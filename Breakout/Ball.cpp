@@ -62,16 +62,19 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& l
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~screenbounds~~~~~~~~~~~~~//
 
 	if (getPosition().x < 16.0f) {
+		setPosition({ 16.0f, getPosition().y });
 		m_velocity.x = -m_velocity.x;
 		this->glow();
 	}	
 
 	else if (getPosition().x > 960.0f - 16.0f) {
+			setPosition({ 960.0f - 16.0f, getPosition().y });
 			m_velocity.x = -m_velocity.x;
 			this->glow();
 	}
 
 	if (getPosition().y < 16.0f) {
+		setPosition({ getPosition().x, 16.0f });
 		m_velocity.y = -m_velocity.y;
 		this->glow();
 	}
@@ -119,15 +122,33 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& l
 		sf::FloatRect brickBounds = brick.getGlobalBounds();
 
 		if (auto intersectionRect = ballBounds.findIntersection(brickBounds)) {
-			score += 100;
-			brick.destroy();
+			
+			brick.takeDamage();
+			if (brick.health() == 0) {
+				brick.destroy();
+				score += 100;
+			}
 			this->glow();
 
+
 			if (intersectionRect->size.x < intersectionRect->size.y) {
+				
+				if (ballBounds.position.x < brickBounds.position.x) {
+					this->move({ -intersectionRect->size.x, 0.f });
+				}
+				else {
+					this->move({ intersectionRect->size.x, 0.f });
+				}
 				m_velocity.x = -m_velocity.x;
 			}
 			else
 			{
+				if (ballBounds.position.y < brickBounds.position.y) {
+					this->move({ 0.f, -intersectionRect->size.y });
+				}
+				else {
+					this->move({ 0.f, intersectionRect->size.y });
+				}
 				m_velocity.y = -m_velocity.y;
 			}
 			break;
