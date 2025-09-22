@@ -31,19 +31,15 @@ void loadLevel(const std::string& filename, std::vector<Brick>& bricks) {
 	{
 		std::stringstream ss(line);
 		std::string token;
-		float currentX = 80.f; // The X position for the first brick in a row
+		float currentX = 80.f;
 
-		// Read each token (e.g., "1r", "0", "3w") from the line
 		while (ss >> token)
 		{
-			// If the token is "0", it's an empty space, so we do nothing but advance the position.
 			if (token != "0")
 			{
-				// The first character is the type, the second is the color
 				char typeChar = token[0];
 				char colorChar = token[1];
 
-				// Convert the characters into the actual Type and Color
 				Brick::Type brickType = Brick::Type::Normal;
 				sf::Color brickColor = sf::Color::White;
 
@@ -61,15 +57,22 @@ void loadLevel(const std::string& filename, std::vector<Brick>& bricks) {
 				case 'w': brickColor = sf::Color::White; break;
 				}
 
-				// Finally, create the brick with the parsed data
 				bricks.emplace_back(currentX, currentY, brickType, brickColor);
 			}
-			// Move to the next position for the next brick in the row
-			currentX += 90.f + 10.f; // Brick width + padding
+			currentX += 90.f + 10.f;
 		}
-		// Move to the next row position
-		currentY += 30.f + 5.f; // Brick height + padding
+		currentY += 30.f + 5.f; 
 	}
+}
+
+void resetGame(int& level, int& score, int& lives, Ball& ball, Paddle& paddle, std::vector<Brick>& bricks) {
+
+	ball.setPosition({ 960.0f / 2, 800.0f / 2 });
+	paddle.setPosition({ 960.0f / 2, 800.0f - 70.0f });
+
+	std::string levelFile = "assets/levels/level" + std::to_string(level) + ".txt";
+
+	loadLevel(levelFile, bricks);
 }
 
 int main() {
@@ -143,17 +146,9 @@ int main() {
 	Paddle paddle(960.0f / 2, 800.0f - 70.0f);
 
 	std::vector<Brick> bricks;
-	
 
-	/*const int bricksPerRow = 9;
-	const int numRows = 4;
-	for (int i = 0; i < bricksPerRow; ++i) {
-		for (int j = 0; j < numRows; ++j) {
-			float x = i * (90.f + 10.f) + 80.f;
-			float y = j * (30.f + 10.f) + 120.f;
-			bricks.emplace_back(x, y ,colors[j % colors.size()]);
-		}
-	}*/
+	int currentLevel = 1;
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -176,7 +171,8 @@ int main() {
 					sf::Vector2f mousePos = myWindow->mapPixelToCoords(mouseTPos);
 
 					if (play.getGlobalBounds().contains(mousePos)) {
-						loadLevel("assets/levels/level4.txt", bricks);
+						currentLevel = 1;
+						resetGame(currentLevel, score, lives, ball, paddle, bricks);
 						currentState = GameState::GameRunning;
 					}
 					else if (exit.getGlobalBounds().contains(mousePos)) {
@@ -214,6 +210,23 @@ int main() {
 					i++;
 				}
 			}
+			bool levelCleared = true;
+
+			for (const auto& brick : bricks)
+			{
+				
+				if (brick.getType() != Brick::Type::Steel)
+				{
+					levelCleared = false;
+					break;
+				}
+			}
+
+			if (levelCleared) {
+				currentLevel += 1;
+				resetGame(currentLevel, score, lives, ball, paddle, bricks);
+			}
+
 			scoreText.setString("Score: " + std::to_string(score));
 			livesText.setString("Lives: " + std::to_string(lives));
 			myWindow->clear();
