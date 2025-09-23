@@ -12,7 +12,7 @@ void Level::loadLevel(const std::string& filename, std::vector<Brick>& bricks) {
 		return;
 	}
 	std::string line;
-	float currentY = 80.f;
+	float currentY = 100.f;
 
 	while (std::getline(file, line)) {
 		std::stringstream ss(line);
