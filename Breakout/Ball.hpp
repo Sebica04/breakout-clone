@@ -12,6 +12,8 @@ public:
 
 	void glow();
 
+	void hold(const Paddle& paddle);
+
 	sf::Vector2f getPosition() const;
 	sf::FloatRect getGlobalBounds() const;
 	sf::Vector2f normalize(const sf::Vector2f& source);
@@ -25,4 +27,5 @@ private:
 	sf::Texture m_ballTexture;
 	sf::Clock m_glowClock;
 	bool m_isGlowing;
+	bool m_isHeld;
 };

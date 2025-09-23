@@ -6,6 +6,7 @@
 #include "TileMap.hpp"
 #include "Ball.hpp"
 #include "Paddle.hpp"
+#include "Level.hpp"
 using json = nlohmann::json;
 
 
@@ -16,64 +17,7 @@ enum class GameState {
 	GameOver
 };
 
-void loadLevel(const std::string& filename, std::vector<Brick>& bricks) {
 
-	bricks.clear();
-	std::ifstream file(filename);
-	if (!file.is_open()) {
-		std::cerr << "Error: Failed to open level file: " << filename << std::endl;
-		return;
-	}
-	std::string line;
-	float currentY = 80.f;
-
-	while (std::getline(file, line))
-	{
-		std::stringstream ss(line);
-		std::string token;
-		float currentX = 80.f;
-
-		while (ss >> token)
-		{
-			if (token != "0")
-			{
-				char typeChar = token[0];
-				char colorChar = token[1];
-
-				Brick::Type brickType = Brick::Type::Normal;
-				sf::Color brickColor = sf::Color::White;
-
-				switch (typeChar) {
-				case '1': brickType = Brick::Type::Normal; break;
-				case '2': brickType = Brick::Type::Sturdy; break;
-				case '3': brickType = Brick::Type::Steel; break;
-				}
-
-				switch (colorChar) {
-				case 'r': brickColor = sf::Color::Red; break;
-				case 'g': brickColor = sf::Color::Green; break;
-				case 'b': brickColor = sf::Color::Blue; break;
-				case 'y': brickColor = sf::Color::Yellow; break;
-				case 'w': brickColor = sf::Color::White; break;
-				}
-
-				bricks.emplace_back(currentX, currentY, brickType, brickColor);
-			}
-			currentX += 90.f + 10.f;
-		}
-		currentY += 30.f + 5.f; 
-	}
-}
-
-void resetGame(int& level, int& score, int& lives, Ball& ball, Paddle& paddle, std::vector<Brick>& bricks) {
-
-	ball.setPosition({ 960.0f / 2, 800.0f / 2 });
-	paddle.setPosition({ 960.0f / 2, 800.0f - 70.0f });
-
-	std::string levelFile = "assets/levels/level" + std::to_string(level) + ".txt";
-
-	loadLevel(levelFile, bricks);
-}
 
 int main() {
 
@@ -172,7 +116,7 @@ int main() {
 
 					if (play.getGlobalBounds().contains(mousePos)) {
 						currentLevel = 1;
-						resetGame(currentLevel, score, lives, ball, paddle, bricks);
+						Level::resetGame(currentLevel, ball, paddle, bricks);
 						currentState = GameState::GameRunning;
 					}
 					else if (exit.getGlobalBounds().contains(mousePos)) {
@@ -224,7 +168,7 @@ int main() {
 
 			if (levelCleared) {
 				currentLevel += 1;
-				resetGame(currentLevel, score, lives, ball, paddle, bricks);
+				Level::resetGame(currentLevel, ball, paddle, bricks);
 			}
 
 			scoreText.setString("Score: " + std::to_string(score));

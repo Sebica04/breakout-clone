@@ -39,18 +39,6 @@ Brick::Brick(float startX, float startY, Type type, const sf::Color& color) {
 	m_isDestroyed = false;
 }
 
-sf::FloatRect Brick::getGlobalBounds() const {
-	return getTransform().transformRect(m_shape.getGlobalBounds());
-}
-
-void Brick::destroy() {
-	m_isDestroyed = true;
-}
-
-bool Brick::isDestroyed() const {
-	return m_isDestroyed;
-}
-
 void Brick::updateTexture()
 {
 	sf::IntRect textureRect;
@@ -72,11 +60,16 @@ void Brick::updateTexture()
 	m_shape.setTextureRect(textureRect);
 }
 
-void Brick::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-	if (!m_isDestroyed) {
-		states.transform *= getTransform();
-		target.draw(m_shape, states);
-	}
+sf::FloatRect Brick::getGlobalBounds() const {
+	return getTransform().transformRect(m_shape.getGlobalBounds());
+}
+
+void Brick::destroy() {
+	m_isDestroyed = true;
+}
+
+bool Brick::isDestroyed() const {
+	return m_isDestroyed;
 }
 
 void Brick::takeDamage() {
@@ -86,4 +79,11 @@ void Brick::takeDamage() {
 
 int Brick::health() {
 	return m_health;
+}
+
+void Brick::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+	if (!m_isDestroyed) {
+		states.transform *= getTransform();
+		target.draw(m_shape, states);
+	}
 }

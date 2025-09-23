@@ -22,7 +22,7 @@ Ball::Ball(float startX, float startY) {
 
 	m_speed = 3.0f;
 	m_velocity = normalize({ -1.f, -1.f }) * m_speed;
-
+	m_isHeld = true;
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
@@ -50,6 +50,13 @@ sf::Vector2f Ball::normalize(const sf::Vector2f& source) {
 	else
 		return source;
 }
+
+void Ball::hold(const Paddle& paddle)
+{
+	m_isHeld = true;
+	setPosition({ paddle.getPosition().x, paddle.getPosition().y - 30.f });
+}
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -57,6 +64,19 @@ sf::Vector2f Ball::normalize(const sf::Vector2f& source) {
 
 void Ball::update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& lives) {
 	
+	if (m_isHeld){
+
+		setPosition({ paddle.getPosition().x, paddle.getPosition().y - 22.f });
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+		{
+			m_isHeld = false;
+			m_velocity = normalize({ -0.5f, -1.0f }) * m_speed;
+		}
+
+		return;
+	}
+
 	move(m_velocity);
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~screenbounds~~~~~~~~~~~~~//
@@ -81,8 +101,7 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& l
 
 	else if (getPosition().y > 800.0f + 120.0f) {
 		lives -= 1;
-		m_velocity.y = -m_velocity.y;
-		setPosition({ 960.0f / 2, 800.0f / 2 });
+		hold(paddle);
 	}
 
 	//~~~~~~~~~~~~~~~~intersection with the paddle~~~~~~~~~~~~//
