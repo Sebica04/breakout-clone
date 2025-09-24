@@ -7,6 +7,9 @@
 #include "Ball.hpp"
 #include "Paddle.hpp"
 #include "Level.hpp"
+#include "HighScore.hpp"
+
+
 using json = nlohmann::json;
 
 
@@ -21,7 +24,7 @@ enum class GameState {
 
 int main() {
 
-
+	bool checkedForHighScore = false;
 
 	//~~~~~~~~~~~~~~~~~~~~Creating the window~~~~~~~~~~~~~~~~~~//
 
@@ -109,6 +112,28 @@ int main() {
 	livesTextButtonBackground.setOutlineColor(sf::Color::Blue);
 	livesTextButtonBackground.setOutlineThickness(2.f);
 
+
+	std::vector<ScoreEntry> highScores;
+	HighScore::loadScores(highScores);
+
+	sf::Text gameOverTitle(arial);
+	gameOverTitle.setCharacterSize(28);
+	gameOverTitle.setString("GameOver");
+
+	sf::Text yourScoreText(arial);
+	yourScoreText.setCharacterSize(40);
+	yourScoreText.setString("Your Score: ");
+
+	std::vector<sf::Text> highScoreTexts;
+
+	for (int i = 0; i < 5; ++i) {
+		sf::Text text(arial);
+		text.setCharacterSize(32);
+		text.setFillColor(sf::Color::White);
+		text.setPosition({ 960.f / 2.f - 100.f, 300.f + (i * 40.f) });
+		highScoreTexts.push_back(text);
+	}
+
 	//~~~~~~~Initializing the game objects~~~~~~~~~~~~~~~~~//
 			//~~~~Tilemap for backgorund, ball, paddle, bricks~~~~~~~~//
 	int score = 0;
@@ -163,10 +188,20 @@ int main() {
 			break;
 		}
 		case GameState::GameRunning:{
+
+
+			if (lives == 0) {
+				checkedForHighScore = false; 
+				currentState = GameState::GameOver;
+			}
+
 			while (const std::optional event = myWindow->pollEvent()) {
 
 				if (event->is<sf::Event::Closed>())
 					myWindow->close();
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X)) {
+					bricks.clear();
+				}
 			}
 
 			ball.update(paddle, bricks, score, lives);
@@ -217,13 +252,50 @@ int main() {
 				myWindow->draw(brick);
 			}
 			if (lives == 0)
-				currentState = GameState::MainMenu;
+				currentState = GameState::GameOver;
 			myWindow->display();
 			break;
 		}
 		case GameState::GameOver:
 		{
-			// We'll implement this later
+			while (const std::optional event = myWindow->pollEvent()) {
+
+				if (event->is<sf::Event::Closed>())
+					myWindow->close();
+			}
+
+			if (!checkedForHighScore) {
+				// 1. Update the list and see if we made a new high score.
+				bool newHighScoreMade = HighScore::updateAndCheck(score, highScores);
+
+				// 2. If we did, save the new list to the file.
+				if (newHighScoreMade) {
+					HighScore::saveScores(highScores);
+				}
+
+				checkedForHighScore = true;
+
+				// 3. Update the display text (this is now always correct)
+				yourScoreText.setString("Your Score: " + std::to_string(score));
+				// Clear old text before setting new text
+				for (auto& text : highScoreTexts) {
+					text.setString("");
+				}
+				for (int i = 0; i < highScores.size(); ++i) {
+					highScoreTexts[i].setString(std::to_string(i + 1) + ".   " + std::to_string(highScores[i].score));
+				}
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter)) {
+				currentState = GameState::MainMenu;
+			}
+			myWindow->clear();
+			myWindow->draw(gameOverTitle);
+			myWindow->draw(yourScoreText);
+			for (const auto& text : highScoreTexts) {
+				myWindow->draw(text);
+			}
+			myWindow->display();
 			break;
 		}
 		}
