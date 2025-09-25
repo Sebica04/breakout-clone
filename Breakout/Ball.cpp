@@ -10,7 +10,7 @@ Ball::Ball(float startX, float startY) {
 		std::cerr << "Failed to load the ball texture" << std::endl;
 	}
 
-	m_shape.setRadius(12.0f);
+	m_shape.setRadius(BALL_RADIUS);
 
 	m_shape.setTexture(&m_ballTexture);
 
@@ -20,7 +20,7 @@ Ball::Ball(float startX, float startY) {
 
 	m_isGlowing = false;
 
-	m_speed = 3.0f;
+	m_speed = BALL_SPEED;
 	m_velocity = normalize({ -1.f, -1.f }) * m_speed;
 	m_isHeld = true;
 }
@@ -87,8 +87,8 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& l
 		this->glow();
 	}	
 
-	else if (getPosition().x > 960.0f - 16.0f) {
-			setPosition({ 960.0f - 16.0f, getPosition().y });
+	else if (getPosition().x > WINDOW_WIDTH - 16.0f) {
+			setPosition({ WINDOW_WIDTH - 16.0f, getPosition().y });
 			m_velocity.x = -m_velocity.x;
 			this->glow();
 	}
@@ -176,9 +176,9 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& l
 
 	//~~~~~~~~ball roatations and glow stop ~~~~~~~~~~~~~~~//
 
-	this->rotate(sf::degrees(m_velocity.x * 2));
+	this->rotate(sf::degrees(m_velocity.x * BALL_ROTATION_FACTOR));
 
-	if (m_isGlowing && m_glowClock.getElapsedTime().asMilliseconds() > 150)
+	if (m_isGlowing && m_glowClock.getElapsedTime().asMilliseconds() > GLOW_DURATION_MS)
 	{
 		m_isGlowing = false;
 

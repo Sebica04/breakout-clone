@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "Config.hpp"
 
 class Paddle : public sf::Drawable, public sf::Transformable {
 public:

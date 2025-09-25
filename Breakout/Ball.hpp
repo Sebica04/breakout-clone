@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Paddle.hpp"
 #include "Brick.hpp"
+#include "Config.hpp"
 
 class Ball : public sf::Drawable, public sf::Transformable {
 	

@@ -16,7 +16,7 @@ Brick::Brick(float startX, float startY, Type type, const sf::Color& color) {
 	}
 	setPosition({ startX, startY });
 
-	m_shape.setSize({90.f, 30.f});
+	m_shape.setSize(BRICK_SIZE);
 	m_shape.setTexture(&s_texture);
 	m_shape.setFillColor(color);
 	m_shape.setOrigin(m_shape.getGeometricCenter());

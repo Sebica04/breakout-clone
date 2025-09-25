@@ -8,7 +8,7 @@
 #include "Paddle.hpp"
 #include "Level.hpp"
 #include "HighScore.hpp"
-
+#include "Config.hpp"
 
 using json = nlohmann::json;
 
@@ -28,10 +28,9 @@ int main() {
 
 	//~~~~~~~~~~~~~~~~~~~~Creating the window~~~~~~~~~~~~~~~~~~//
 
-	unsigned int width = 960;
-	unsigned int height = 800;
+	
 
-	sf::RenderWindow* myWindow = new sf::RenderWindow(sf::VideoMode({ width, height }), "Breakout");
+	sf::RenderWindow* myWindow = new sf::RenderWindow(sf::VideoMode({WINDOW_WIDTH , WINDOW_HEIGHT }), "Breakout");
 
 	myWindow->setFramerateLimit(144);
 
@@ -61,7 +60,7 @@ int main() {
 	play.setString("Play");
 	play.setCharacterSize(36);
 	play.setFillColor(sf::Color::Yellow);
-	play.setPosition({ 960.0f / 2 - 32, 800.0f / 2 - 60 });
+	play.setPosition({ WINDOW_WIDTH / 2 - 32, WINDOW_HEIGHT / 2 - 60 });
 	play.setStyle(sf::Text::Bold);
 
 	sf::RectangleShape playButtonBackground;
@@ -76,7 +75,7 @@ int main() {
 	exit.setString("Exit");
 	exit.setCharacterSize(36);
 	exit.setFillColor(sf::Color::Yellow);
-	exit.setPosition({ 960.0f / 2 - 28, 800.0f / 2 + 10});
+	exit.setPosition({ WINDOW_WIDTH / 2 - 28, WINDOW_HEIGHT / 2 + 10});
 	exit.setStyle(sf::Text::Bold);
 
 	sf::RectangleShape exitButtonBackground;
@@ -130,7 +129,7 @@ int main() {
 		sf::Text text(arial);
 		text.setCharacterSize(32);
 		text.setFillColor(sf::Color::White);
-		text.setPosition({ 960.f / 2.f - 100.f, 300.f + (i * 40.f) });
+		text.setPosition({ WINDOW_WIDTH / 2.f - 100.f, 300.f + (i * 40.f) });
 		highScoreTexts.push_back(text);
 	}
 

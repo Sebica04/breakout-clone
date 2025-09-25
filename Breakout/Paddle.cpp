@@ -16,7 +16,7 @@ Paddle::Paddle(float startX, float startY) : m_sprite(m_texture) {
 	m_sprite.setTexture(m_texture);
 	m_sprite.setOrigin({ 130.0f / 2.f, 50.0f / 2.f });
 
-	m_hitbox.setSize({ 120.0f, 16.0f });
+	m_hitbox.setSize(PADDLE_HITBOX_SIZE);
 	m_hitbox.setFillColor(sf::Color::Transparent);
 	m_hitbox.setOrigin(m_hitbox.getGeometricCenter());
 
@@ -54,7 +54,7 @@ void Paddle::update() {
 		baseState = 2;
 	}
 
-	if (m_isHit && m_hitTimer.getElapsedTime().asMilliseconds() > 150) {
+	if (m_isHit && m_hitTimer.getElapsedTime().asMilliseconds() > GLOW_DURATION_MS) {
 		m_isHit = false;
 	}
 

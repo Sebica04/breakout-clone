@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="Ball.hpp" />
     <ClInclude Include="Brick.hpp" />
+    <ClInclude Include="Config.hpp" />
     <ClInclude Include="HighScore.hpp" />
     <ClInclude Include="Level.hpp" />
     <ClInclude Include="Paddle.hpp" />
