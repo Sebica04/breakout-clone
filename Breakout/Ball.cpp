@@ -16,7 +16,7 @@ Ball::Ball(float startX, float startY) {
 
 	m_shape.setOrigin(m_shape.getGeometricCenter());
 
-	m_shape.setTextureRect(sf::IntRect({0,0},{24, 24}));
+	m_shape.setTextureRect(sf::IntRect({0,0},{ 24, 24 }));
 
 	m_isGlowing = false;
 
@@ -81,25 +81,25 @@ void Ball::update(Paddle& paddle, std::vector<Brick>& bricks, int& score, int& l
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~screenbounds~~~~~~~~~~~~~//
 
-	if (getPosition().x < 16.0f) {
-		setPosition({ 16.0f, getPosition().y });
+	if (getPosition().x < SCREEN_BORDER) {
+		setPosition({ SCREEN_BORDER, getPosition().y });
 		m_velocity.x = -m_velocity.x;
 		this->glow();
 	}	
 
-	else if (getPosition().x > WINDOW_WIDTH - 16.0f) {
-			setPosition({ WINDOW_WIDTH - 16.0f, getPosition().y });
+	else if (getPosition().x > WINDOW_WIDTH - SCREEN_BORDER) {
+			setPosition({ WINDOW_WIDTH - SCREEN_BORDER, getPosition().y });
 			m_velocity.x = -m_velocity.x;
 			this->glow();
 	}
 
-	if (getPosition().y < 16.0f) {
-		setPosition({ getPosition().x, 16.0f });
+	if (getPosition().y < SCREEN_BORDER) {
+		setPosition({ getPosition().x, SCREEN_BORDER });
 		m_velocity.y = -m_velocity.y;
 		this->glow();
 	}
 
-	else if (getPosition().y > 800.0f + 120.0f) {
+	else if (getPosition().y > WINDOW_HEIGHT + 120.0f) {
 		lives -= 1;
 		hold(paddle);
 	}

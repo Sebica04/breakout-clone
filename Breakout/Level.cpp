@@ -66,12 +66,18 @@ void Level::loadLevel(const std::string& filename, std::vector<Brick>& bricks) {
 	}
 }
 
-void Level::resetGame(int& level, Ball& ball, Paddle& paddle, std::vector<Brick>& bricks) {
+void Level::resetGame(int& level, int& score, int& lives, Ball& ball, Paddle& paddle, std::vector<Brick>& bricks) {
+
+	if (level == 1) {
+		score = 0;
+		lives = 3;
+	}
 
 	
 	paddle.setPosition({ 960.0f / 2, 800.0f - 70.0f });
 	ball.hold(paddle);
 
+	
 	std::string levelFile = "assets/levels/level" + std::to_string(level) + ".txt";
 
 	loadLevel(levelFile, bricks);

@@ -18,3 +18,5 @@ const float BRICK_PADDING_Y = 5.f;
 
 const float LEVEL_START_X = 80.f;
 const float LEVEL_START_Y = 80.f;
+
+const float	SCREEN_BORDER = 16.0f;

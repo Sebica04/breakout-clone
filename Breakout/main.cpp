@@ -169,7 +169,7 @@ int main() {
 
 					if (play.getGlobalBounds().contains(mousePos)) {
 						currentLevel = 1;
-						Level::resetGame(currentLevel, ball, paddle, bricks);
+						Level::resetGame(currentLevel,score, lives, ball, paddle, bricks);
 						currentState = GameState::GameRunning;
 					}
 					else if (exit.getGlobalBounds().contains(mousePos)) {
@@ -188,12 +188,6 @@ int main() {
 		}
 		case GameState::GameRunning:{
 
-
-			if (lives == 0) {
-				checkedForHighScore = false; 
-				currentState = GameState::GameOver;
-			}
-
 			while (const std::optional event = myWindow->pollEvent()) {
 
 				if (event->is<sf::Event::Closed>())
@@ -205,6 +199,13 @@ int main() {
 
 			ball.update(paddle, bricks, score, lives);
 			paddle.update();
+
+			if (lives == 0) {
+				checkedForHighScore = false; 
+				currentState = GameState::GameOver;
+				break;
+			}
+
 
 			//~~~~~~~~~~erasing the destroyed briks~~~~~~~~~~~~//
 			int i = 0;
@@ -233,7 +234,7 @@ int main() {
 
 			if (levelCleared) {
 				currentLevel += 1;
-				Level::resetGame(currentLevel, ball, paddle, bricks);
+				Level::resetGame(currentLevel, score, lives, ball, paddle, bricks);
 			}
 
 			scoreText.setString("Score: " + std::to_string(score));
@@ -307,4 +308,3 @@ int main() {
 	delete myWindow;
 	return 0;
 }
-
